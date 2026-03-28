@@ -1,0 +1,104 @@
+{
+  "name": "AnimeFighterSimulator",
+  "tree": {
+    "$className": "DataModel",
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+
+      "DataManagers": {
+        "$className": "Folder",
+        "DataManager": {
+          "$path": "src/ServerScriptService/DataManagers/DataManager.server.lua"
+        }
+      },
+
+      "Systems": {
+        "$className": "Folder",
+        "CombatSystem": {
+          "$path": "src/ServerScriptService/Systems/CombatSystem.lua"
+        },
+        "CurrencySystem": {
+          "$path": "src/ServerScriptService/Systems/CurrencySystem.lua"
+        },
+        "FighterSystem": {
+          "$path": "src/ServerScriptService/Systems/FighterSystem.lua"
+        },
+        "GachaSystem": {
+          "$path": "src/ServerScriptService/Systems/GachaSystem.lua"
+        },
+        "WorldSystem": {
+          "$path": "src/ServerScriptService/Systems/WorldSystem.lua"
+        },
+        "QuestSystem": {
+          "$path": "src/ServerScriptService/Systems/QuestSystem.lua"
+        },
+        "ClassSystem": {
+          "$path": "src/ServerScriptService/Systems/ClassSystem.lua"
+        },
+        "RaidSystem": {
+          "$path": "src/ServerScriptService/Systems/RaidSystem.lua"
+        },
+        "ShopSystem": {
+          "$path": "src/ServerScriptService/Systems/ShopSystem.lua"
+        },
+        "DailySystem": {
+          "$path": "src/ServerScriptService/Systems/DailySystem.lua"
+        },
+        "DefenseModeSystem": {
+          "$path": "src/ServerScriptService/Systems/DefenseModeSystem.lua"
+        },
+        "TradeSystem": {
+          "$path": "src/ServerScriptService/Systems/TradeSystem.lua"
+        }
+      },
+
+      "Main": {
+        "$path": "src/ServerScriptService/Main.server.lua"
+      }
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+
+      "Data": {
+        "$className": "Folder",
+        "WorldData": {
+          "$path": "src/ReplicatedStorage/Data/WorldData.lua"
+        },
+        "FighterData": {
+          "$path": "src/ReplicatedStorage/Data/FighterData.lua"
+        },
+        "ClassData": {
+          "$path": "src/ReplicatedStorage/Data/ClassData.lua"
+        },
+        "PassiveData": {
+          "$path": "src/ReplicatedStorage/Data/PassiveData.lua"
+        }
+      },
+
+      "Modules": {
+        "$className": "Folder",
+        "PlayerDataTemplate": {
+          "$path": "src/ReplicatedStorage/Modules/PlayerDataTemplate.lua"
+        }
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$className": "Folder",
+          "Controllers": {
+            "$className": "Folder",
+            "GameController": {
+              "$path": "src/StarterPlayerScripts/Client/Controllers/GameController.client.lua"
+            }
+          }
+        }
+      }
+    }
+  }
+}
