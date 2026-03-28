@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🐾 Sprint Dog – 100m Estimator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px 60px;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-shadow: 0 0 20px #a78bfa;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #c4b5fd;
+      margin-bottom: 30px;
+    }
+
+    /* ── DOG ── */
+    .dog-wrap {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .dog {
+      font-size: 7rem;
+      display: block;
+      animation: bounce 1.8s ease-in-out infinite;
+      cursor: default;
+      user-select: none;
+      filter: drop-shadow(0 0 18px #7c3aed88);
+    }
+
+    .speech {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      color: #302b63;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 5px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px #0005;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .speech::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #fff;
+    }
+    .speech.show { opacity: 1; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 28px 28px 32px;
+      width: 100%;
+      max-width: 480px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 40px #0007;
+    }
+
+    .row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #c4b5fd;
+    }
+
+    input {
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 1.1rem;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      width: 100%;
+    }
+    input:focus {
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px #7c3aed44;
+    }
+    input::placeholder { color: #ffffff55; }
+
+    /* track slider */
+    .track-row {
+      margin-bottom: 20px;
+    }
+    .track-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: #c4b5fd;
+      margin-top: 6px;
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #7c3aed, #c4b5fd);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #a78bfa;
+      box-shadow: 0 0 8px #7c3aed;
+      cursor: pointer;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px #7c3aed66;
+    }
+    .btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px #7c3aed88; }
+    .btn:active { transform: translateY(0); }
+
+    /* ── RESULTS ── */
+    .results {
+      margin-top: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeUp 0.45s ease;
+    }
+    .results.show { display: flex; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-title {
+      text-align: center;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #c4b5fd;
+      margin-bottom: 4px;
+    }
+
+    .main-result {
+      background: linear-gradient(135deg, #7c3aed33, #a855f733);
+      border: 1.5px solid #a855f7;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    .main-result .label { font-size: 0.8rem; color: #c4b5fd; margin-bottom: 4px; }
+    .main-result .time {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      text-shadow: 0 0 20px #a78bfa;
+    }
+    .main-result .grade {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .alts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .alt-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 13px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .alt-card:hover { background: rgba(255,255,255,0.1); }
+    .alt-card .alt-name { font-size: 0.85rem; color: #e2d9ff; }
+    .alt-card .alt-desc { font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+    .alt-card .alt-time { font-size: 1.35rem; font-weight: 800; color: #c4b5fd; }
+
+    /* ── TRACK VISUAL ── */
+    .track-viz {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .track-viz-label { font-size: 0.75rem; color: #c4b5fd; margin-bottom: 10px; }
+    .lane {
+      background: #1e1b4b;
+      border-radius: 6px;
+      height: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .lane-line {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: rgba(255,255,255,0.2);
+    }
+    .runner-dot {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      font-size: 1.4rem;
+      line-height: 28px;
+      text-align: center;
+      transition: left 1s cubic-bezier(0.22,1,0.36,1);
+    }
+    .finish-flag {
+      position: absolute;
+      right: 4px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+    }
+
+    .tip-box {
+      background: rgba(124,58,237,0.15);
+      border-left: 3px solid #7c3aed;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 14px;
+      font-size: 0.83rem;
+      color: #d8b4fe;
+      line-height: 1.5;
+    }
+
+    .error { color: #f87171; font-size: 0.85rem; text-align: center; display: none; }
+    .error.show { display: block; }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏃 Sprint Dog</h1>
+  <p class="subtitle">Your personal 100m time estimator</p>
+
+  <div class="dog-wrap">
+    <div class="speech" id="speech">Woof! Let's see how fast you are! 🐾</div>
+    <span class="dog" id="dog">🐶</span>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label>Distance run (m)</label>
+        <input type="number" id="dist" placeholder="e.g. 75" min="10" max="99" step="1"/>
+      </div>
+      <div class="field">
+        <label>Your time (sec)</label>
+        <input type="number" id="time" placeholder="e.g. 6.44" min="1" step="0.01"/>
+      </div>
+    </div>
+
+    <div class="track-row">
+      <label>Or drag to set distance</label>
+      <input type="range" id="slider" min="10" max="99" value="75" step="1"/>
+      <div class="track-labels"><span>10m</span><span id="sliderVal">75m</span><span>99m</span></div>
+    </div>
+
+    <p class="error" id="err">Please enter a valid distance (10–99 m) and a positive time.</p>
+
+    <button class="btn" onclick="calculate()">⚡ Estimate My 100m</button>
+
+    <div class="results" id="results">
+      <p class="result-title">Your estimated 100m time</p>
+
+      <div class="main-result">
+        <div class="label">Best estimate</div>
+        <div class="time" id="mainTime">—</div>
+        <span class="grade" id="mainGrade"></span>
+      </div>
+
+      <!-- track visual -->
+      <div class="track-viz">
+        <div class="track-viz-label">Visualising your run…</div>
+        <div class="lane" id="lane">
+          <div class="lane-line" style="left:25%"></div>
+          <div class="lane-line" style="left:50%"></div>
+          <div class="lane-line" style="left:75%"></div>
+          <div class="runner-dot" id="runnerDot" style="left:0%">🐶</div>
+          <div class="finish-flag">🏁</div>
+        </div>
+      </div>
+
+      <div class="alts" id="alts"></div>
+
+      <div class="tip-box" id="tipBox"></div>
+    </div>
+  </div>
+
+  <footer>Sprint Dog · estimates based on Riegel & linear models · for fun & training only 🐾</footer>
+
+<script>
+  /* ── sync slider ↔ input ── */
+  const slider  = document.getElementById('slider');
+  const distIn  = document.getElementById('dist');
+  const sliderV = document.getElementById('sliderVal');
+
+  slider.addEventListener('input', () => {
+    distIn.value   = slider.value;
+    sliderV.textContent = slider.value + 'm';
+  });
+  distIn.addEventListener('input', () => {
+    const v = parseInt(distIn.value);
+    if (v >= 10 && v <= 99) { slider.value = v; sliderV.textContent = v + 'm'; }
+  });
+
+  /* ── dog speech ── */
+  const quips = [
+    "Woof! Let's see how fast you are! 🐾",
+    "Looking speedy, human! 🏃",
+    "My tail can't keep up with you! 🐾",
+    "You might beat a greyhound… maybe. 😄",
+    "Training pays off! Keep running! 🏅",
+    "Bow-wow, that's quick! 🐕",
+    "Even I'd need a head start! 😅",
+  ];
+  let quipIdx = 0;
+  setInterval(() => {
+    const s = document.getElementById('speech');
+    s.classList.remove('show');
+    setTimeout(() => {
+      quipIdx = (quipIdx + 1) % quips.length;
+      s.textContent = quips[quipIdx];
+      s.classList.add('show');
+    }, 400);
+  }, 4000);
+  setTimeout(() => document.getElementById('speech').classList.add('show'), 600);
+
+  /* ── calculations ── */
+  function riegelEstimate(d, t) {
+    // T2 = T1 * (D2/D1)^1.06
+    return t * Math.pow(100 / d, 1.06);
+  }
+  function linearEstimate(d, t) {
+    return (t / d) * 100;
+  }
+  function conservativeEstimate(d, t) {
+    // fatigue model: slightly slower in later meters
+    return t * Math.pow(100 / d, 1.10);
+  }
+  function optimisticEstimate(d, t) {
+    // peak acceleration model
+    return t * Math.pow(100 / d, 1.03);
+  }
+
+  function gradeTime(sec) {
+    if (sec < 9.58) return { label: '🌎 World Record Territory!', color: '#fbbf24' };
+    if (sec < 10.0) return { label: '🥇 Elite Sprinter',          color: '#34d399' };
+    if (sec < 10.8) return { label: '🏆 Competitive Athlete',     color: '#60a5fa' };
+    if (sec < 11.5) return { label: '⚡ Strong Runner',           color: '#818cf8' };
+    if (sec < 12.5) return { label: '🏃 Above Average',           color: '#c4b5fd' };
+    if (sec < 14.0) return { label: '👟 Average Adult',           color: '#f9a8d4' };
+    return { label: '🌱 Keep Training!',               color: '#f87171' };
+  }
+
+  function fmt(sec) {
+    return sec.toFixed(2) + 's';
+  }
+
+  function tips(d, t, est) {
+    const pace = (t / d).toFixed(3);
+    const tips = [
+      `Your pace was <strong>${pace} sec/m</strong> over ${d}m. Maintaining that to 100m gives ~${fmt((t/d)*100)}.`,
+      est < 10.5
+        ? 'You\'re in elite territory — focus on reaction time and block starts.'
+        : est < 12.0
+          ? 'Work on your drive phase (first 30m) to shave time off your start.'
+          : 'Consistent stride drills and plyometrics will make the biggest difference.',
+      'Tip: Run your distance 3–5 times per session at 90–95% effort for best sprint gains.',
+    ];
+    return tips[Math.floor(Math.random() * tips.length)];
+  }
+
+  /* ── main ── */
+  function calculate() {
+    const d   = parseFloat(distIn.value);
+    const t   = parseFloat(document.getElementById('time').value);
+    const err = document.getElementById('err');
+
+    if (!d || !t || d < 10 || d > 99 || t <= 0) {
+      err.classList.add('show');
+      return;
+    }
+    err.classList.remove('show');
+
+    const best    = riegelEstimate(d, t);
+    const linear  = linearEstimate(d, t);
+    const conserv = conservativeEstimate(d, t);
+    const optimis = optimisticEstimate(d, t);
+    const grade   = gradeTime(best);
+
+    /* main result */
+    document.getElementById('mainTime').textContent = fmt(best);
+    const g = document.getElementById('mainGrade');
+    g.textContent = grade.label;
+    g.style.background = grade.color + '33';
+    g.style.color       = grade.color;
+    g.style.border      = `1px solid ${grade.color}66`;
+
+    /* track animation */
+    const dot = document.getElementById('runnerDot');
+    dot.style.left = '0%';
+    setTimeout(() => {
+      dot.style.left = `calc(${(d/100)*95}% )`;
+    }, 100);
+
+    /* alternatives */
+    const alts = [
+      { name: 'Linear (constant pace)',    desc: 'Assumes same speed throughout',         time: linear  },
+      { name: 'Riegel model',              desc: 'Standard athletic performance formula',  time: best    },
+      { name: 'Optimistic (fresh finish)', desc: 'If you still had gas in the tank',       time: optimis },
+      { name: 'Conservative (fatigue)',    desc: 'Accounts for end-of-race slowdown',      time: conserv },
+    ].sort((a,b) => a.time - b.time);
+
+    const container = document.getElementById('alts');
+    container.innerHTML = '<p class="result-title" style="margin-bottom:0">Scenario breakdown</p>';
+    alts.forEach((a, i) => {
+      const card = document.createElement('div');
+      card.className = 'alt-card';
+      const isMain = Math.abs(a.time - best) < 0.001;
+      card.style.border = isMain ? '1px solid #a855f7' : '';
+      card.innerHTML = `
+        <div>
+          <div class="alt-name">${['🥇','🥈','🥉','4️⃣'][i]} ${a.name}${isMain ? ' ✓' : ''}</div>
+          <div class="alt-desc">${a.desc}</div>
+        </div>
+        <div class="alt-time">${fmt(a.time)}</div>`;
+      container.appendChild(card);
+    });
+
+    /* tip */
+    document.getElementById('tipBox').innerHTML = '💡 ' + tips(d, t, best);
+
+    /* show & scroll */
+    const res = document.getElementById('results');
+    res.classList.add('show');
+
+    /* dog reaction */
+    const speech = document.getElementById('speech');
+    const dogReactions = [
+      best < 10.5 ? '🐾 INCREDIBLE speed, human!! 🔥' :
+      best < 12.0 ? '🐶 Wow, you\'re really fast!' :
+      best < 14.0 ? 'Nice pace! Keep training! 💪' :
+                    'Every great sprinter starts somewhere! 🌱'
+    ];
+    speech.textContent = dogReactions[0];
+    speech.classList.add('show');
+
+    res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* allow Enter key */
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+</script>
+</body>
+</html>
