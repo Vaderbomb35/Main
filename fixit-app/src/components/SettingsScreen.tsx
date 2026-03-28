@@ -1,195 +1,215 @@
 import { useState, useEffect } from 'react'
 
-interface Props {
-  onBack: () => void
-}
-
-export default function SettingsScreen({ onBack }: Props) {
+export default function SettingsScreen() {
   const [apiKey, setApiKey] = useState('')
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
+  const [focused, setFocused] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem('fixit_api_key')
-    if (stored) setApiKey(stored)
+    const k = localStorage.getItem('fixit_api_key')
+    if (k) setApiKey(k)
   }, [])
 
   const handleSave = () => {
-    const trimmed = apiKey.trim()
-    if (trimmed) {
-      localStorage.setItem('fixit_api_key', trimmed)
-    } else {
-      localStorage.removeItem('fixit_api_key')
-    }
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    const k = apiKey.trim()
+    k ? localStorage.setItem('fixit_api_key', k) : localStorage.removeItem('fixit_api_key')
+    setSaved(true); setTimeout(() => setSaved(false), 2500)
   }
 
   const handleClear = () => {
-    setApiKey('')
-    localStorage.removeItem('fixit_api_key')
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setApiKey(''); localStorage.removeItem('fixit_api_key')
+    setSaved(true); setTimeout(() => setSaved(false), 2000)
   }
 
-  const hasStoredKey = !!localStorage.getItem('fixit_api_key')
+  const hasKey = !!localStorage.getItem('fixit_api_key')
+  const isValidFormat = apiKey.trim().startsWith('sk-ant-')
 
   return (
-    <div style={{
-      height: '100%',
-      overflow: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div style={{ height: '100%', overflow: 'auto', position: 'relative' }}>
+      {/* Ambient */}
+      <div style={{
+        position: 'absolute', top: -60, left: -60, width: 200, height: 200,
+        background: 'radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+        animation: 'orb-drift 14s ease-in-out infinite',
+      }} />
+
       {/* Header */}
       <div style={{
-        padding: '16px 20px',
+        padding: '16px 18px',
         paddingTop: 'max(16px, env(safe-area-inset-top))',
         borderBottom: '1px solid var(--border)',
-        background: 'var(--bg-secondary)',
+        background: 'rgba(8,12,20,0.9)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        position: 'sticky', top: 0, zIndex: 20,
       }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700 }}>Settings</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 900, letterSpacing: '-0.03em' }}>Ajustes</h1>
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>Configura tu clave de API</p>
       </div>
 
-      <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ padding: '22px 18px', display: 'flex', flexDirection: 'column', gap: 22, position: 'relative', zIndex: 1 }}>
 
-        {/* API Key Section */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700 }}>Anthropic API Key</h2>
-            {hasStoredKey && (
-              <span style={{
-                padding: '2px 8px',
-                background: 'var(--green-bg)',
-                border: '1px solid rgba(34,197,94,0.3)',
-                borderRadius: 20,
-                color: 'var(--green)',
-                fontSize: 11,
-                fontWeight: 600,
+        {/* API Key card */}
+        <div style={{
+          background: 'var(--grad-card)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-xl)',
+          overflow: 'hidden',
+        }} className="anim-fade-up">
+          {/* Card header */}
+          <div style={{
+            padding: '16px 18px',
+            borderBottom: '1px solid var(--border)',
+            background: 'rgba(249,115,22,0.04)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 36, height: 36,
+                background: 'var(--grad-brand)',
+                borderRadius: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
+              }}>🔑</div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800 }}>Clave de API Anthropic</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+                  Guardada solo en tu dispositivo
+                </div>
+              </div>
+            </div>
+            {hasKey && (
+              <div style={{
+                padding: '4px 10px',
+                background: 'rgba(16,185,129,0.1)',
+                border: '1px solid rgba(16,185,129,0.25)',
+                borderRadius: 'var(--radius-full)',
+                fontSize: 11, fontWeight: 700, color: 'var(--green)',
+                display: 'flex', alignItems: 'center', gap: 4,
               }}>
-                ✓ Saved
-              </span>
+                <span style={{ fontSize: 8, background: 'var(--green)', borderRadius: '50%', width: 6, height: 6, display: 'inline-block' }} />
+                Activa
+              </div>
             )}
           </div>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
-            Your API key is stored locally on your device only and never sent to any server other than Anthropic's.
-          </p>
 
-          <div style={{ position: 'relative', marginBottom: 10 }}>
-            <input
-              type={showKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={e => setApiKey(e.target.value)}
-              placeholder="sk-ant-..."
-              style={{
-                width: '100%',
-                padding: '12px 44px 12px 14px',
-                background: 'var(--bg-input)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                color: 'var(--text-primary)',
-                fontSize: 14,
-                fontFamily: 'monospace',
-                letterSpacing: showKey ? 'normal' : '0.1em',
-              }}
-              onFocus={e => e.currentTarget.style.borderColor = 'var(--orange)'}
-              onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
-              onKeyDown={e => e.key === 'Enter' && handleSave()}
-            />
-            <button
-              onClick={() => setShowKey(!showKey)}
-              style={{
-                position: 'absolute',
-                right: 10,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                color: 'var(--text-muted)',
-                fontSize: 18,
-                padding: 4,
-              }}
-              title={showKey ? 'Hide' : 'Show'}
-            >
-              {showKey ? '🙈' : '👁'}
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={handleSave}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: saved
-                  ? 'var(--green-bg)'
-                  : 'linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%)',
-                border: saved ? '1px solid rgba(34,197,94,0.3)' : 'none',
-                borderRadius: 'var(--radius)',
-                color: saved ? 'var(--green)' : '#fff',
-                fontSize: 14,
-                fontWeight: 700,
-                transition: 'all 0.2s',
-              }}
-            >
-              {saved ? '✓ Saved!' : 'Save API Key'}
-            </button>
-            {apiKey && (
-              <button
-                onClick={handleClear}
+          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Input */}
+            <div style={{
+              display: 'flex', alignItems: 'center',
+              background: 'var(--bg-input)',
+              border: `1.5px solid ${focused ? 'var(--orange)' : isValidFormat && apiKey ? 'rgba(16,185,129,0.4)' : 'var(--border)'}`,
+              borderRadius: 'var(--radius)',
+              overflow: 'hidden',
+              transition: 'border-color var(--transition)',
+              boxShadow: focused ? '0 0 0 3px rgba(249,115,22,0.12)' : 'none',
+            }}>
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={e => setApiKey(e.target.value)}
+                placeholder="sk-ant-api03-..."
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
                 style={{
-                  padding: '12px 16px',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
+                  flex: 1, padding: '13px 14px',
+                  background: 'transparent', color: 'var(--text-primary)',
+                  fontSize: 13, fontFamily: 'monospace',
+                  letterSpacing: showKey ? 'normal' : '0.15em',
+                  border: 'none',
+                }}
+              />
+              <button
+                onClick={() => setShowKey(!showKey)}
+                style={{
+                  padding: '0 14px', height: '100%',
+                  background: 'none', color: 'var(--text-muted)', fontSize: 17,
+                  borderLeft: '1px solid var(--border)',
+                  display: 'flex', alignItems: 'center',
+                }}
+              >{showKey ? '🙈' : '👁'}</button>
+            </div>
+
+            {/* Validation hint */}
+            {apiKey && !isValidFormat && (
+              <p style={{ fontSize: 12, color: 'var(--yellow)', display: 'flex', gap: 5, alignItems: 'center' }}>
+                <span>⚠️</span> Las claves de Anthropic empiezan por "sk-ant-"
+              </p>
+            )}
+            {isValidFormat && apiKey && (
+              <p style={{ fontSize: 12, color: 'var(--green)', display: 'flex', gap: 5, alignItems: 'center' }}>
+                <span>✅</span> Formato correcto
+              </p>
+            )}
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={handleSave}
+                style={{
+                  flex: 1, padding: '13px',
+                  background: saved ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--grad-brand)',
                   borderRadius: 'var(--radius)',
-                  color: 'var(--text-muted)',
-                  fontSize: 14,
+                  color: '#fff', fontSize: 14, fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  boxShadow: saved ? '0 4px 16px rgba(16,185,129,0.3)' : 'var(--shadow-orange)',
+                  transition: 'all 0.3s',
                 }}
               >
-                Clear
+                {saved ? <><span>✓</span> Guardado</> : <><span>💾</span> Guardar</>}
               </button>
-            )}
+              {apiKey && (
+                <button
+                  onClick={handleClear}
+                  style={{
+                    padding: '13px 16px',
+                    background: 'rgba(239,68,68,0.08)',
+                    border: '1px solid rgba(239,68,68,0.2)',
+                    borderRadius: 'var(--radius)',
+                    color: 'var(--red)', fontSize: 14,
+                  }}
+                >Borrar</button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ height: 1, background: 'var(--border)' }} />
-
-        {/* Help */}
-        <div>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Getting an API Key</h2>
+        {/* How to get key */}
+        <div style={{ animation: 'fadeUp 0.4s 0.1s ease both' }}>
+          <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 14 }}>
+            Cómo obtener tu clave
+          </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              { step: '1', text: 'Go to console.anthropic.com' },
-              { step: '2', text: 'Sign up or log in to your account' },
-              { step: '3', text: 'Click "API Keys" in the sidebar' },
-              { step: '4', text: 'Create a new key and copy it here' },
+              { step: 1, text: 'Ve a console.anthropic.com', icon: '🌐', color: '#6366f1' },
+              { step: 2, text: 'Crea una cuenta o inicia sesión', icon: '👤', color: '#8b5cf6' },
+              { step: 3, text: 'Haz clic en "API Keys" en el menú lateral', icon: '🔑', color: '#f97316' },
+              { step: 4, text: 'Crea una nueva clave y pégala aquí', icon: '✨', color: '#10b981' },
             ].map(item => (
               <div key={item.step} style={{
-                display: 'flex',
-                gap: 10,
-                alignItems: 'flex-start',
-                padding: '10px 12px',
-                background: 'var(--bg-card)',
-                borderRadius: 'var(--radius-sm)',
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 14px',
+                background: 'var(--grad-card)',
                 border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
               }}>
-                <span style={{
-                  width: 22,
-                  height: 22,
-                  background: 'var(--orange-glow)',
-                  border: '1px solid rgba(249,115,22,0.3)',
+                <div style={{
+                  width: 34, height: 34, flexShrink: 0,
+                  background: `${item.color}12`,
+                  border: `1px solid ${item.color}28`,
+                  borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17,
+                }}>{item.icon}</div>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, flex: 1 }}>{item.text}</span>
+                <div style={{
+                  width: 20, height: 20, flexShrink: 0,
+                  background: `${item.color}15`,
+                  border: `1px solid ${item.color}30`,
                   borderRadius: '50%',
-                  color: 'var(--orange)',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  {item.step}
-                </span>
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, paddingTop: 2 }}>{item.text}</span>
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, color: item.color, fontWeight: 800,
+                }}>{item.step}</div>
               </div>
             ))}
           </div>
@@ -199,19 +219,46 @@ export default function SettingsScreen({ onBack }: Props) {
         <div style={{ height: 1, background: 'var(--border)' }} />
 
         {/* About */}
-        <div>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>About FixIt</h2>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-            FixIt uses Claude (claude-sonnet-4-0) to diagnose home repair problems.
-            It analyzes your description and photos to provide plain-English explanations,
-            severity assessments, DIY instructions, and contractor recommendations.
+        <div style={{ animation: 'fadeUp 0.4s 0.2s ease both' }}>
+          <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 14 }}>
+            Acerca de FixIt
           </p>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 10, lineHeight: 1.5 }}>
-            ⚠️ Always use professional judgment. For safety hazards (gas leaks, electrical issues, structural problems), call a licensed professional immediately.
-          </p>
+          <div style={{
+            padding: '16px',
+            background: 'var(--grad-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-lg)',
+            display: 'flex', flexDirection: 'column', gap: 10,
+          }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <div style={{
+                width: 44, height: 44,
+                background: 'var(--grad-brand)',
+                borderRadius: 14, fontSize: 22,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 16px rgba(249,115,22,0.3)',
+              }}>🔧</div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800 }}>FixIt v1.0</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Diagnóstico de reparaciones del hogar</div>
+              </div>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.65 }}>
+              Utiliza el modelo Claude (claude-sonnet-4-0) para diagnosticar problemas en el hogar a partir de descripciones y fotos. Analiza la gravedad, sugiere reparaciones DIY o recomienda profesionales.
+            </p>
+            <div style={{
+              padding: '10px 12px',
+              background: 'rgba(245,158,11,0.07)',
+              border: '1px solid rgba(245,158,11,0.18)',
+              borderRadius: 10,
+              fontSize: 12, color: 'rgba(245,158,11,0.8)', lineHeight: 1.55,
+            }}>
+              ⚠️ Ante riesgos de seguridad (gas, electricidad, estructuras), llama siempre a un profesional cualificado de inmediato.
+            </div>
+          </div>
         </div>
 
-        <div style={{ height: 20 }} />
+        <div style={{ height: 24 }} />
       </div>
     </div>
   )

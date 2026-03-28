@@ -100,7 +100,7 @@ export default function App() {
           />
         )}
         {screen === 'settings' && (
-          <SettingsScreen onBack={() => setScreen('home')} />
+          <SettingsScreen />
         )}
       </div>
       {(screen === 'home' || screen === 'history' || screen === 'settings') && (
