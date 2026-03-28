@@ -1,0 +1,74 @@
+{
+  "name": "CosmicPetSimulator",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Modules": {
+        "$path": "src/ReplicatedStorage/Modules"
+      },
+      "RemoteEvents": {
+        "$className": "Folder",
+        "HatchEgg":        { "$className": "RemoteEvent" },
+        "EquipPet":        { "$className": "RemoteEvent" },
+        "UnequipPet":      { "$className": "RemoteEvent" },
+        "BuyUpgrade":      { "$className": "RemoteEvent" },
+        "BuyShopItem":     { "$className": "RemoteEvent" },
+        "Rebirth":         { "$className": "RemoteEvent" },
+        "TeleportWorld":   { "$className": "RemoteEvent" },
+        "UpdatePlayerData":{ "$className": "RemoteEvent" },
+        "SpawnCoinEffect": { "$className": "RemoteEvent" },
+        "OpenEggResult":   { "$className": "RemoteEvent" }
+      },
+      "RemoteFunctions": {
+        "$className": "Folder",
+        "GetPlayerData":   { "$className": "RemoteFunction" },
+        "GetLeaderboard":  { "$className": "RemoteFunction" }
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "DataManager": {
+        "$path": "src/ServerScriptService/DataManager.lua",
+        "$properties": { "RunContext": "Legacy" }
+      },
+      "GameManager": {
+        "$path": "src/ServerScriptService/GameManager.lua",
+        "$properties": { "RunContext": "Legacy" }
+      },
+      "PetSystem": {
+        "$path": "src/ServerScriptService/PetSystem.lua",
+        "$properties": { "RunContext": "Legacy" }
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "ClientManager": {
+          "$path": "src/StarterPlayer/StarterPlayerScripts/ClientManager.lua",
+          "$properties": { "RunContext": "Client" }
+        },
+        "PetFollower": {
+          "$path": "src/StarterPlayer/StarterPlayerScripts/PetFollower.lua",
+          "$properties": { "RunContext": "Client" }
+        }
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "MainGui": {
+        "$path": "src/StarterGui/MainGui",
+        "$className": "ScreenGui",
+        "$properties": {
+          "ResetOnSpawn": false,
+          "ZIndexBehavior": "Sibling"
+        }
+      }
+    }
+  }
+}
